@@ -17,6 +17,7 @@ import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
+import seedu.address.logic.commands.UndoCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 
 /**
@@ -56,11 +57,20 @@ public class AddressBookParser {
         case AddCommand.COMMAND_WORD:
             return new AddCommandParser().parse(arguments);
 
+        case seedu.address.logic.commands.AddEventCommand.COMMAND_WORD:
+            return new AddEventCommandParser().parse(arguments);
+
         case EditCommand.COMMAND_WORD:
             return new EditCommandParser().parse(arguments);
 
+        case seedu.address.logic.commands.EditEventCommand.COMMAND_WORD:
+            return new EditEventCommandParser().parse(arguments);
+
         case DeleteCommand.COMMAND_WORD:
             return new DeleteCommandParser().parse(arguments);
+
+        case seedu.address.logic.commands.DeleteEventCommand.COMMAND_WORD:
+            return new DeleteEventCommandParser().parse(arguments);
 
         case ClearCommand.COMMAND_WORD:
             return new ClearCommand();
@@ -77,6 +87,15 @@ public class AddressBookParser {
         case HelpCommand.COMMAND_WORD:
             return new HelpCommand();
 
+        case UndoCommand.COMMAND_WORD:
+            return new UndoCommand();
+
+        case seedu.address.logic.commands.ViewCommand.COMMAND_WORD:
+            return new seedu.address.logic.parser.ViewCommandParser().parse(arguments);
+        case seedu.address.logic.commands.AssignContactToEventCommand.COMMAND_WORD:
+            return new seedu.address.logic.parser.AssignContactToEventCommandParser().parse(arguments);
+        case seedu.address.logic.commands.UnassignContactFromEventCommand.COMMAND_WORD:
+            return new seedu.address.logic.parser.UnassignContactFromEventCommandParser().parse(arguments);
         default:
             logger.finer("This user input caused a ParseException: " + userInput);
             throw new ParseException(MESSAGE_UNKNOWN_COMMAND);

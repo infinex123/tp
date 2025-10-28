@@ -4,14 +4,17 @@ import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.PersonId;
 
 /**
  * Represents the in-memory model of the address book data.
@@ -22,6 +25,9 @@ public class ModelManager implements Model {
     private final AddressBook addressBook;
     private final UserPrefs userPrefs;
     private final FilteredList<Person> filteredPersons;
+    private final SortedList<Person> sortedFilteredPersons;
+    private final FilteredList<seedu.address.model.event.Event> filteredEvents;
+    private AddressBookSnapshot undoSnapshot; // Stores the previous state for undo
 
     /**
      * Initializes a ModelManager with the given addressBook and userPrefs.
@@ -34,6 +40,9 @@ public class ModelManager implements Model {
         this.addressBook = new AddressBook(addressBook);
         this.userPrefs = new UserPrefs(userPrefs);
         filteredPersons = new FilteredList<>(this.addressBook.getPersonList());
+        sortedFilteredPersons = new SortedList<>(filteredPersons, (person1, person2) ->
+                person1.getName().fullName.compareToIgnoreCase(person2.getName().fullName));
+        filteredEvents = new FilteredList<>(this.addressBook.getEventList());
     }
 
     public ModelManager() {
@@ -87,6 +96,27 @@ public class ModelManager implements Model {
         return addressBook;
     }
 
+    //========================= PERSON OPERATIONS =========================
+
+    @Override
+    public Optional<Person> getPersonById(PersonId id) {
+        requireNonNull(id);
+        for (Person person : addressBook.getPersonList()) {
+            if (person.getId().equals(id)) {
+                return Optional.of(person);
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Checks if a person with the same identity already exists in the address book.
+     * Identity is typically determined by name (see Person.isSamePerson()).
+     * Used to prevent duplicate entries.
+     *
+     * @param person Person to check for existence
+     * @return true if a person with same identity exists, false otherwise
+     */
     @Override
     public boolean hasPerson(Person person) {
         requireNonNull(person);
@@ -111,6 +141,30 @@ public class ModelManager implements Model {
         addressBook.setPerson(target, editedPerson);
     }
 
+    @Override
+    public boolean hasEvent(seedu.address.model.event.Event event) {
+        requireNonNull(event);
+        return addressBook.hasEvent(event);
+    }
+
+    @Override
+    public void deleteEvent(seedu.address.model.event.Event target) {
+        addressBook.removeEvent(target);
+    }
+
+    @Override
+    public void addEvent(seedu.address.model.event.Event event) {
+        addressBook.addEvent(event);
+        updateFilteredEventList(PREDICATE_SHOW_ALL_EVENTS);
+    }
+
+    @Override
+    public void setEvent(seedu.address.model.event.Event target, seedu.address.model.event.Event editedEvent) {
+        requireAllNonNull(target, editedEvent);
+
+        addressBook.setEvent(target, editedEvent);
+    }
+
     //=========== Filtered Person List Accessors =============================================================
 
     /**
@@ -119,13 +173,52 @@ public class ModelManager implements Model {
      */
     @Override
     public ObservableList<Person> getFilteredPersonList() {
-        return filteredPersons;
+        return sortedFilteredPersons;
     }
 
     @Override
     public void updateFilteredPersonList(Predicate<Person> predicate) {
         requireNonNull(predicate);
         filteredPersons.setPredicate(predicate);
+    }
+
+    @Override
+    public ObservableList<seedu.address.model.event.Event> getFilteredEventList() {
+        return filteredEvents;
+    }
+
+    @Override
+    public void updateFilteredEventList(Predicate<seedu.address.model.event.Event> predicate) {
+        requireNonNull(predicate);
+        filteredEvents.setPredicate(predicate);
+    }
+
+    //=========== Undo Functionality ==========================================================================
+
+    @Override
+    public void saveStateForUndo(String operationDescription) {
+        undoSnapshot = new AddressBookSnapshot(addressBook, operationDescription);
+    }
+
+    @Override
+    public boolean canUndo() {
+        return undoSnapshot != null;
+    }
+
+    @Override
+    public String undo() {
+        if (undoSnapshot == null) {
+            return "No operation to undo";
+        }
+
+        String description = undoSnapshot.getOperationDescription();
+        AddressBook restoredBook = undoSnapshot.restoreAddressBook();
+        addressBook.resetData(restoredBook);
+
+        // Clear the undo snapshot after using it
+        undoSnapshot = null;
+
+        return description;
     }
 
     @Override

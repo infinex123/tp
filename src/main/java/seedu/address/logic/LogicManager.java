@@ -62,6 +62,23 @@ public class LogicManager implements Logic {
     }
 
     @Override
+    public CommandResult execute(Command command) throws CommandException {
+        logger.info("----------------[INTERNAL COMMAND][" + command.getClass().getSimpleName() + "]");
+
+        CommandResult commandResult = command.execute(model);
+
+        try {
+            storage.saveAddressBook(model.getAddressBook());
+        } catch (AccessDeniedException e) {
+            throw new CommandException(String.format(FILE_OPS_PERMISSION_ERROR_FORMAT, e.getMessage()), e);
+        } catch (IOException ioe) {
+            throw new CommandException(String.format(FILE_OPS_ERROR_FORMAT, ioe.getMessage()), ioe);
+        }
+
+        return commandResult;
+    }
+
+    @Override
     public ReadOnlyAddressBook getAddressBook() {
         return model.getAddressBook();
     }
@@ -69,6 +86,11 @@ public class LogicManager implements Logic {
     @Override
     public ObservableList<Person> getFilteredPersonList() {
         return model.getFilteredPersonList();
+    }
+
+    @Override
+    public ObservableList<seedu.address.model.event.Event> getFilteredEventList() {
+        return model.getFilteredEventList();
     }
 
     @Override
@@ -84,5 +106,10 @@ public class LogicManager implements Logic {
     @Override
     public void setGuiSettings(GuiSettings guiSettings) {
         model.setGuiSettings(guiSettings);
+    }
+
+    @Override
+    public Model getModel() {
+        return model;
     }
 }

@@ -4,15 +4,18 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.StringUtil;
 import seedu.address.logic.parser.exceptions.ParseException;
-import seedu.address.model.person.Address;
+import seedu.address.model.person.Budget;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
+import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.Website;
 import seedu.address.model.tag.Tag;
 
 /**
@@ -66,18 +69,21 @@ public class ParserUtil {
     }
 
     /**
-     * Parses a {@code String address} into an {@code Address}.
+     * Parses a {@code String website} into an {@code Website}.
      * Leading and trailing whitespaces will be trimmed.
      *
-     * @throws ParseException if the given {@code address} is invalid.
+     * @throws ParseException if the given {@code website} is invalid.
      */
-    public static Address parseAddress(String address) throws ParseException {
-        requireNonNull(address);
-        String trimmedAddress = address.trim();
-        if (!Address.isValidAddress(trimmedAddress)) {
-            throw new ParseException(Address.MESSAGE_CONSTRAINTS);
+    public static Website parseWebsite(String website) throws ParseException {
+        requireNonNull(website);
+        String trimmedWebsite = website.trim();
+        if (trimmedWebsite.isEmpty()) {
+            return new Website("");
         }
-        return new Address(trimmedAddress);
+        if (!Website.isValidWebsite(trimmedWebsite)) {
+            throw new ParseException(Website.MESSAGE_CONSTRAINTS);
+        }
+        return new Website(trimmedWebsite);
     }
 
     /**
@@ -93,6 +99,21 @@ public class ParserUtil {
             throw new ParseException(Email.MESSAGE_CONSTRAINTS);
         }
         return new Email(trimmedEmail);
+    }
+
+    /**
+     * Parses a {@code String budget} into a {@code Budget}.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException if the given {@code budget} is invalid.
+     */
+    public static Budget parseBudget(String budget) throws ParseException {
+        requireNonNull(budget);
+        String trimmedBudget = budget.trim();
+        if (!Budget.isValidBudget(trimmedBudget)) {
+            throw new ParseException(Budget.MESSAGE_CONSTRAINTS);
+        }
+        return new Budget(trimmedBudget);
     }
 
     /**
@@ -120,5 +141,87 @@ public class ParserUtil {
             tagSet.add(parseTag(tagName));
         }
         return tagSet;
+    }
+
+    /**
+     * Parses a {@code String name} into a {@code EventName}.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException if the given {@code name} is invalid.
+     */
+    public static seedu.address.model.event.EventName parseEventName(String name) throws ParseException {
+        requireNonNull(name);
+        String trimmedName = name.trim();
+        if (!seedu.address.model.event.EventName.isValidName(trimmedName)) {
+            throw new ParseException(seedu.address.model.event.EventName.MESSAGE_CONSTRAINTS);
+        }
+        return new seedu.address.model.event.EventName(trimmedName);
+    }
+
+    /**
+     * Parses a {@code String date} into a {@code EventDate}.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException if the given {@code date} is invalid.
+     */
+    public static seedu.address.model.event.EventDate parseEventDate(String date) throws ParseException {
+        requireNonNull(date);
+        String trimmedDate = date.trim();
+        if (!seedu.address.model.event.EventDate.isValidDate(trimmedDate)) {
+            throw new ParseException(seedu.address.model.event.EventDate.MESSAGE_CONSTRAINTS);
+        }
+        return new seedu.address.model.event.EventDate(trimmedDate);
+    }
+
+    /**
+     * Parses a {@code String time} into a {@code EventTime}.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException if the given {@code time} is invalid.
+     */
+    public static seedu.address.model.event.EventTime parseEventTime(String time) throws ParseException {
+        requireNonNull(time);
+        String trimmedTime = time.trim();
+        if (!seedu.address.model.event.EventTime.isValidTime(trimmedTime)) {
+            throw new ParseException(seedu.address.model.event.EventTime.MESSAGE_CONSTRAINTS);
+        }
+        return new seedu.address.model.event.EventTime(trimmedTime);
+    }
+
+    /**
+     * Parses a contact index string (e.g. "1,2,3") into a Set of {@link Index}.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @param contactIndexesString String containing contact indexes separated by commas.
+     * @return Set of Index objects parsed from the string.
+     * @throws ParseException if any index is invalid.
+     */
+    public static Set<Index> parseContactIndexes(String contactIndexesString) throws ParseException {
+        requireNonNull(contactIndexesString);
+        Set<Index> indexSet = new HashSet<>();
+        String[] splitIndexes = contactIndexesString.trim().split(",");
+        for (String indexStr : splitIndexes) {
+            if (!indexStr.isBlank()) {
+                indexSet.add(parseIndex(indexStr));
+            }
+        }
+        return indexSet;
+    }
+
+    /**
+     * Parses a {@code List<Person> personList} into a {@code String}.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException if the given {@code personList} is invalid.
+     */
+    public static String parsePersonListToString(List<Person> personList) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < personList.size(); i++) {
+            builder.append(personList.get(i).getName());
+            if (i < personList.size() - 1) {
+                builder.append(", ");
+            }
+        }
+        return builder.toString();
     }
 }

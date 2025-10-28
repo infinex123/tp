@@ -157,6 +157,57 @@ public class AddCommandTest {
         public void updateFilteredPersonList(Predicate<Person> predicate) {
             throw new AssertionError("This method should not be called.");
         }
+
+        @Override
+        public void saveStateForUndo(String operationDescription) {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
+        public boolean canUndo() {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
+        public String undo() {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
+        public boolean hasEvent(seedu.address.model.event.Event event) {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
+        public void deleteEvent(seedu.address.model.event.Event target) {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
+        public void addEvent(seedu.address.model.event.Event event) {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
+        public void setEvent(seedu.address.model.event.Event target, seedu.address.model.event.Event editedEvent) {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
+        public ObservableList<seedu.address.model.event.Event> getFilteredEventList() {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
+        public void updateFilteredEventList(Predicate<seedu.address.model.event.Event> predicate) {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
+        public java.util.Optional<seedu.address.model.person.Person> getPersonById(
+                seedu.address.model.person.PersonId personId) {
+            throw new AssertionError("This method should not be called.");
+        }
     }
 
     /**
@@ -198,6 +249,11 @@ public class AddCommandTest {
         @Override
         public ReadOnlyAddressBook getAddressBook() {
             return new AddressBook();
+        }
+
+        @Override
+        public void saveStateForUndo(String operationDescription) {
+            // Do nothing for test
         }
     }
 
